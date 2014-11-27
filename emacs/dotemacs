@@ -1,0 +1,638 @@
+; .emacs (-*-Emacs-Lisp-*-)
+;;
+;; Copyright (C) 2002-2014 Alejandro Espinoza Esparza
+;; Author: Alex Espinoza <aespinoza@structum.net>
+;; URL: http://neonlabs.structum.net/blog/tag/emacs/
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, write to the Free Software
+;; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+;;
+;; Run emacs: runemacs.exe -l ".emacs" -q -xrm Emacs.FontBackend:gdi
+;;
+(message "Loading .emacs")
+(defvar *emacs-load-start* (current-time))
+
+;;
+;; C O N S T A N T S
+;;
+(defconst -MAIN_DIR "/Users/aespinoza/.emacs.d/"
+  "Main Directory")
+
+(defconst -SITELISP_DIR "site-lisp/"
+  "Site-Lisp directory")
+
+(defconst -COLORSCHEMES_DIR "color_schemes/"
+  "Color Schemes directory")
+
+(defconst -COLOR_SCHEME "molokai"
+  "Main Color Scheme.")
+
+;;
+;; W I N D O W   S E T T I N G S
+;;
+(setq default-frame-alist
+      '((width  . 120)
+		(height . 50)
+		(font   . "-outline-Source Code Pro-normal-normal-normal-mono-11-*-*-*-c-*-iso8859-1")
+))
+
+(setq-default frame-title-format (list invocation-name "@" system-name ": %b %+%+ %f"))
+
+(require 'speedbar)
+(setq speedbar-frame-parameters (quote
+                                 ((minibuffer)
+                                  (width          . 35)
+                                  (border-width   . 0)
+                                  (menu-bar-lines . 0)
+                                  (unsplittable   . t)
+                                  (font           . "-outline-Source Code Pro-normal-normal-normal-mono-11-*-*-*-c-*-iso8859-1"))))
+
+;; No UI.
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+
+;;
+;; P A C K A G E   M A N A G E R
+;;
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  )
+
+;;
+;; B U F F E R   S E T T I N G S
+;;
+;; Default buffer type.
+(setq buffer-file-coding-system 'undecided-unix)
+
+; Dont show GNU splash screen
+(setq inhibit-startup-message t)
+
+;; Enable Narrow to region.
+(put 'narrow-to-region 'disabled nil)
+
+;; Open unidentified files in text mode
+(setq major-mode 'text-mode)
+
+; Make all "yes or no" prompts show "y or n" instead
+(fset 'yes-or-no-p 'y-or-n-p)
+
+; Windows-like selection
+(delete-selection-mode t)
+
+;; Disable tooltips
+(tooltip-mode 0)
+
+;; No bell, thank you.
+(setq visible-bell t)
+(setq ring-bell-function (lambda ()))
+
+;; Highlight current line.
+(global-hl-line-mode 1)
+
+;; Highlight matching parenthesis
+(show-paren-mode t)
+
+;; Paste at point NOT at cursor
+(setq mouse-yank-at-point 't)
+
+;; Spaces, not tabs
+(setq-default indent-tabs-mode nil)
+
+;; Remove Version Control backends.
+(setq vc-handled-backends nil)
+
+; try to improve slow performance on windows.
+(setq w32-get-true-file-attributes nil)
+
+; Improve font Drawing.
+(setq redisplay-dont-pause t)
+
+; Remove XML/HTML validation.
+(setq rng-nxml-auto-validate-flag nil)
+
+; Do not open a file in a new window.
+(setq pop-up-frames nil)
+(setq ns-pop-up-frames nil)
+
+; Remove trailing whitespace before save.
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; Display clock
+(display-time)
+
+; Line Numbers
+(global-linum-mode 1)
+(setq linum-format " %4d\u2502")
+
+;;
+;; L I B R A R Y   S E T T I N G S
+;;
+(add-to-list 'load-path (format "%s%s" -MAIN_DIR -SITELISP_DIR))
+
+;; Common Lisp compatibility.
+(eval-when-compile
+  (require 'cl))
+
+;; Use ido.
+(require 'ido)
+(ido-mode t)
+(setq ido-decorations
+	  '("  " "" " " " ..." " [" "]" " (No Match)" " (Matched)"))
+(setq ido-save-directory-list-file nil)
+(setq ido-max-window-height 1)
+
+;;
+;; C U S T O M   F A C E S
+;;
+(setq custom-file (format "%s%s%s%s" -MAIN_DIR -COLORSCHEMES_DIR -COLOR_SCHEME ".elc"))
+(load custom-file)
+
+;; Powerline
+(require 'powerline)
+(powerline-default-theme)
+
+
+;;
+;; E X T E R N A L   C O M M A N D S   S E T T I N G S
+;;
+
+(setq-default grep-command "grep -i ")
+
+(setq backup-directory-alist nil)
+(setq backup-directory-alist
+      (cons (cons "\\.*$" (expand-file-name (format "%s%s" -MAIN_DIR "/ebacks")))
+            backup-directory-alist))
+
+
+;;
+;; G L O B A L   K E Y   S E T T I N G S
+;;
+(define-key global-map [f1] 'hs-toggle-hiding)                     ;; F1 - Toggle block Hiding
+(define-key global-map [f2] 'create-scratch-buffer)                ;; F2 - Create new Scratch buffer
+(define-key global-map [f3] 'kill-buffer-fast)                     ;; F3 - Close buffer
+(define-key global-map [f4] 'goto-line)                            ;; F4 - Go to line
+(define-key global-map [f5] 'other-window)                         ;; F5 - Other window
+(define-key global-map [f6] 'whitespace-cleanup)                   ;; F6 - Show Block
+;;(define-key global-map [f7] 'hs-hide-block)                        ;; F7 - Hide Block
+
+(define-key global-map [f8] 'toggle-speedbar)                      ;; F8 - Toggle speedbar
+(define-key global-map [f9] 'w32-restore-frame)                    ;; F9 - Minimize window
+(define-key global-map [f10] 'w32-maximize-frame)                  ;; F10 - Maximize window
+(define-key global-map [f11] 'vs2emacs)                            ;; F11 - VS2005 2 Unix
+(define-key global-map [f12] 'add-change-log-entry-other-window)   ;; F12 - Add Change log entry
+
+;; Global Keys
+(global-set-key "\C-cc" 'comment-region)
+(global-set-key "\C-cu" 'uncomment-region)
+(global-set-key (kbd "M-`") 'mark-and-copy-current-word)
+(global-set-key (kbd "C-`") 'mark-and-yank-current-word)
+
+;; Page down/up move the point, not the screen.
+;; In practice, this means that they can move the
+;; point to the beginning or end of the buffer.
+(global-set-key [next]
+  (lambda () (interactive)
+    (condition-case nil (scroll-up)
+      (end-of-buffer (goto-char (point-max))))))
+
+(global-set-key [prior]
+  (lambda () (interactive)
+    (condition-case nil (scroll-down)
+      (beginning-of-buffer (goto-char (point-min))))))
+
+;;
+;; C U S T O M   V A R S   S E T T I N G S
+;;
+(custom-set-variables
+ '(auto-revert-interval 2)
+ '(auto-revert-stop-on-user-input nil)
+ '(c-basic-offset 4)
+ '(sgml-basic-offset 4)
+ '(nxml-basic-offset 4)
+ '(c-font-lock-extra-types (quote ("String" "BOOL" "using" "namespace" "this" "value" "void")))
+ '(c-progress-interval 8)
+ '(c-tab-always-indent (quote other))
+ '(case-fold-search t)
+ '(column-number-mode t)
+ '(compilation-ask-about-save nil t)
+ '(compilation-scroll-output t)
+ '(compilation-window-height 6 t)
+ '(current-language-environment "Latin-1")
+ '(default-input-method "latin-1-prefix")
+ '(delete-old-versions t)
+ '(font-lock-global-modes t)
+ '(font-lock-maximum-decoration t)
+ '(font-lock-support-mode (quote jit-lock-mode))
+ '(global-auto-revert-mode t nil (autorevert))
+ '(global-auto-revert-mode-text " GRev")
+ '(global-font-lock-mode t nil (font-lock))
+ '(indent-tabs-mode t)
+ '(line-number-mode t)
+ '(next-line-add-newlines nil)
+ '(standard-indent 4)
+ '(tab-width 4)
+ '(comment-multi-line nil)
+ '(transient-mark-mode t)
+ '(uniquify-buffer-name-style (quote forward) nil (uniquify))
+ '(speedbar-show-unknown-files t)
+ '(speedbar-use-images t)
+ '(user-full-name "Alejandro Espinoza Esparza")
+ '(user-mail-address "aespinoza@structum.net")
+)
+
+;;
+;; M O D E   M A P P I N G S
+;;
+;; Speedbar Support for C#
+(speedbar-add-supported-extension ".cs")
+(add-to-list 'speedbar-fetch-etags-parse-list
+			 '("\\.cs" . speedbar-parse-c-or-c++tag))
+
+;; Speedbar Support for JS
+(speedbar-add-supported-extension ".js")
+(add-to-list 'speedbar-fetch-etags-parse-list
+			 '("\\.js" . speedbar-parse-c-or-c++tag))
+
+(when (locate-library "rainbow-mode")
+	  (autoload 'rainbow-mode "rainbow-mode" nil t)
+	  (eval-after-load 'rainbow-mode
+		'(progn
+		   (require 'rainbow-mode))))
+
+(when (locate-library "csharp-mode")
+      (autoload 'csharp-mode "csharp-mode" nil t)
+      (eval-after-load 'csharp-mode
+        '(progn
+		   (turn-on-auto-revert-mode)
+		   (setq indent-tabs-mode nil)
+		   ;;(require 'flymake)
+		   ;;(flymake-mode 1)
+		   (require 'rfringe)
+
+		   ;; Snippet Support
+		   (require 'dropdown-list)
+		   (require 'yasnippet)
+		   (yas/minor-mode-on)
+
+		   (yas/initialize)
+		   (yas/load-directory (format "%s%s%s" -MAIN_DIR -SITELISP_DIR "snippets"))
+
+		   (require 'csharp-mode))))
+
+(when (locate-library "web-mode")
+	  (autoload 'web-mode "web-mode" nil t)
+	  (eval-after-load 'web-mode
+		'(progn
+		   (require 'web-mode))))
+
+(when (locate-library "aspx-mode")
+      (autoload 'aspx-mode "aspx-mode" nil t)
+      (eval-after-load 'aspx-mode
+        '(progn
+		   (require 'aspx-mode))))
+
+(when (locate-library "powershell-mode")
+      (autoload 'powershell-mode "powershell-mode" nil t)
+      (eval-after-load 'powershell-mode
+        '(progn
+		   (require 'powershell-mode))))
+
+(when (locate-library "js2-mode")
+      (autoload 'js2-mode "js2-mode" nil t)
+      (eval-after-load 'js2-mode
+        '(progn
+		   (require 'js2-mode))))
+
+(when (locate-library "markdown-mode")
+      (autoload 'markdown-mode "markdown-mode" nil t)
+      (eval-after-load 'markdown-mode
+        '(progn
+		   (require 'markdown-mode))))
+
+(when (locate-library "nxml-mode")
+      (autoload 'nxml-mode "nxml-mode" nil t)
+      (eval-after-load 'nxml-mode
+        '(progn
+		   (require 'nxml-mode))))
+
+(when (locate-library "php-mode")
+      (autoload 'php-mode "php-mode" nil t)
+      (eval-after-load 'php-mode
+        '(progn
+		   (require 'php-mode))))
+
+(when (locate-library "html-helper-mode")
+      (autoload 'html-helper-mode "html-helper-mode" nil t)
+      (eval-after-load 'html-helper-mode
+        '(progn
+		   (require 'html-helper-mode))))
+
+(when (locate-library "go-mode")
+	  (autoload 'go-mode "go-mode" nil t)
+	  (eval-after-load 'go-mode
+		'(progn
+		   (require 'go-mode-load))))
+
+;;(require 'java-mode-plus)
+
+(setq auto-mode-alist
+      (append '(("\\.C$"       . c-mode)
+				("\\.cc$"      . c++-mode)
+				("\\.cpp$"     . c++-mode)
+				("\\.cxx$"     . c++-mode)
+				("\\.hxx$"     . c++-mode)
+				("\\.hpp$"     . c++-mode)
+				("\\.h$"       . c++-mode)
+				("\\.hh$"      . c++-mode)
+				("\\.idl$"     . c++-mode)
+				("\\.ipp$"     . c++-mode)
+				("\\.rc$"      . c++-mode)
+				("\\.c$"       . c-mode)
+
+				("\\.markdown$" . markdown-mode)
+				("\\.go$"      . go-mode)
+				("\\.cs$"      . csharp-mode)
+				("\\.ts$"      . typescript-mode)
+				("\\.php$"     . php-mode)
+
+				("\\.css$"     . css-mode)
+				("\\.html$"    . web-mode)
+				("\\.htm$"     . web-mode)
+				("\\.as[cph]x$". web-mode)
+				("\\.cshtml$"  . web-mode)
+				("\\.xslt$"    . sgml-mode)
+				("\\.xsd$"     . sgml-mode)
+				("\\.config$"  . sgml-mode)
+				("\\.xml$"     . sgml-mode)
+				("\\.xaml$"    . web-mode)
+				("\\.csproj$"  . sgml-mode)
+
+				("\\.ps1$"     . powershell-mode)
+				("\\.hla$"     . asm-mode)
+
+				("\\.java$"    . java-mode)
+				("\\.js$"      . js2-mode)
+				("\\.jsl$"     . java-mode))
+			  auto-mode-alist))
+
+
+;;
+;; C O M M O N   L A N G U A G E   S E T T I N G S
+;;
+
+;; Use C++ Style comments.
+(defun rt-do-line-comments()
+  (setq comment-start "// ")
+  (setq comment-end ""))
+(add-hook 'c-mode-hook 'rt-do-line-comments)
+
+;; FIXME and TODO highlight mode C, C++, C#, Java and JavaScript
+(mapc (lambda (mode)
+		  (font-lock-add-keywords
+		   mode
+		   '(("\\<\\(FIXME\\|TODO\\|HACK\\):" 1 font-lock-warning-face t))))
+		'(c-mode c++-mode csharp-mode js2-mode java-mode))
+
+
+;;
+;; C U S T O M   F U N C T I O N S
+;;
+
+(defun mark-and-copy-current-word()
+    "Selects the current word and copies it to the clipboard."
+	(interactive)
+	(mark-current-word)
+	(copy-region-as-kill (mark) (point))
+)
+
+(defun mark-and-kill-current-word()
+    "Selects the current word and cuts it into the clipboard."
+	(interactive)
+	(mark-current-word)
+	(kill-region (mark) (point))
+)
+
+(defun mark-and-yank-current-word()
+    "Selects the current word and pastes the clipboard content."
+	(interactive)
+	(mark-current-word)
+	(delete-region (mark) (point))
+	(yank)
+)
+
+(defun mark-current-word(&optional arg allow-extend)
+  "Selects the current word"
+  (interactive "p\np")
+  (setq arg (if arg arg 1))
+  (if (and allow-extend
+		   (or (and (eq last-command this-command) (mark t))
+			   (region-active-p)))
+	  (set-mark
+	   (save-excursion
+		 (when (< (mark) (point))
+		   (setq arg (- arg)))
+		 (goto-char (mark))
+		 (forward-word arg)
+		 (point)))
+	(let ((wbounds (bounds-of-thing-at-point 'word)))
+	  (unless (consp wbounds)
+		(error "No word at point"))
+	  (if (>= arg 0)
+		  (goto-char (car wbounds))
+		(goto-char (cdr wbounds)))
+	  (push-mark (save-excursion
+				   (forward-word arg)
+				   (point)))
+	  (activate-mark)
+	  )
+	)
+)
+
+
+
+;;fancy transparency
+(defun djcb-opacity-modify (&optional dec) "Modify the transparency of the emacs frame; if DEC is t, decrease the transparency, otherwise increase it in 10%-steps"
+  (let* ((alpha-or-nil (frame-parameter nil 'alpha)) ; nil before setting
+		 (oldalpha (if alpha-or-nil alpha-or-nil 100))
+		 (newalpha (if dec (- oldalpha 10) (+ oldalpha 10))))
+    (when (and (>= newalpha frame-alpha-lower-limit) (<= newalpha 100))
+      (modify-frame-parameters nil (list (cons 'alpha newalpha))))))
+
+;; C-8 will increase opacity (== decrease transparency)
+;; C-9 will decrease opacity (== increase transparency
+;; C-0 will returns the state to normal
+(global-set-key (kbd "C-8") '(lambda()(interactive)(djcb-opacity-modify)))
+(global-set-key (kbd "C-9") '(lambda()(interactive)(djcb-opacity-modify t)))
+(global-set-key (kbd "C-0") '(lambda()(interactive)
+                               (modify-frame-parameters nil `((alpha . 100)))))
+
+(defun load-mmm() "Loads Major Multi-Mode on-demand."
+  (interactive)
+
+  (load (format "%s%s%s" -MAIN_DIR -SITELISP_DIR "nxhtml/autostart.el"))
+
+  (require 'mumamo-aspnet)
+)
+
+(defun load-ecb() "Loads ECB on-demand. No need to load it up everytime."
+  (interactive)
+
+  ;; Configure ECB
+  (custom-set-variables
+   '(ecb-layout-name "left2")
+   '(ecb-options-version "2.40")
+   '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
+   '(ecb-tip-of-the-day nil)
+   '(ecb-tree-indent 4)
+   '(semantic-load-turn-useful-things-on t)
+   '(ecb-tree-buffer-style (quote image)))
+
+  ;; Activate ECB
+  (require 'ecb)
+  (ecb-activate)
+  )
+
+(defvar speedbar-frame nil)
+(defun toggle-speedbar () "Toggles the speedbar"
+  (interactive)
+  (if speedbar-frame
+	  (speedbar-frame-mode -1)
+	(speedbar-get-focus)))
+
+(defun kill-buffer-fast () "Kills the current buffer"
+  (interactive )
+  (kill-buffer nil))
+
+(defun w32-restore-frame () "Restore a minimized frame"
+     (interactive)
+     (w32-send-sys-command 61728))
+
+(defun w32-maximize-frame () "Maximize the current frame"
+     (interactive)
+     (w32-send-sys-command 61488))
+
+(defun swap-tab-for-space() "Swaps tab for space"
+   (interactive)
+   (narrow-to-region (region-beginning) (region-end))
+   (goto-char(point-min))
+   (while (search-forward "\t" nil t) (replace-match " "))
+   (widen)
+   nil)
+
+(defun create-scratch-buffer nil "Create a new scratch buffer to work in. (could be *scratch* - *scratchX*)"
+  (interactive)
+  (let ((n 0)
+	bufname)
+    (while (progn
+	     (setq bufname (concat "*scratch"
+				   (if (= n 0) "" (int-to-string n))
+				   "*"))
+	     (setq n (1+ n))
+	     (get-buffer bufname)))
+    (switch-to-buffer (get-buffer-create bufname))
+    (if (= n 1) (lisp-interaction-mode))))
+
+(defun vs2emacs() "Remove (^@) from a visual studio formated text."
+  (interactive)
+  (goto-char(point-min))
+  (while (search-forward "ÿþ" nil t) (replace-match ""))
+  (goto-char(point-min))
+  (while (search-forward "\C-@" nil t) (replace-match ""))
+  (dos2unix))
+
+(defun dos2unix() "Convert dos (^M) end of line to unix end of line"
+  (interactive)
+  (goto-char(point-min))
+  (while (search-forward "\r" nil t) (replace-match "")))
+
+(defun unix2dos() "Unix 2 Dos"
+  (interactive)
+  (goto-char(point-min))
+  (while (search-forward "\n" nil t) (replace-match "\r\n")))
+
+(defun insert-date () "Insert date at point."
+  (interactive)
+  (insert (format-time-string "%A, %B %e, %Y %k:%M:%S %z")))
+
+(defun region-length () "Length of a region"
+  (interactive)
+  (message (format "%d" (- (region-end) (region-beginning)))))
+
+(defun expand-window ()
+  "It expands the currently selected window"
+  (interactive)
+  (win-resize-enlarge-horiz 20)
+  (win-resize-enlarge-horiz 20)
+)
+
+;; Window Shrink and Expand Created by Mathias Dahl
+(defun win-resize-top-or-bot ()
+  "Figure out if the current window is on top, bottom or in the middle"
+  (let* ((win-edges (window-edges))
+	 (this-window-y-min (nth 1 win-edges))
+	 (this-window-y-max (nth 3 win-edges))
+	 (fr-height (frame-height)))
+    (cond
+     ((eq 0 this-window-y-min) "top")
+     ((eq (- fr-height 1) this-window-y-max) "bot")
+     (t "mid"))))
+
+(defun win-resize-left-or-right ()
+  "Figure out if the current window is to the left, right or in the middle"
+  (let* ((win-edges (window-edges))
+	 (this-window-x-min (nth 0 win-edges))
+	 (this-window-x-max (nth 2 win-edges))
+	 (fr-width (frame-width)))
+    (cond
+     ((eq 0 this-window-x-min) "left")
+     ((eq (+ fr-width 4) this-window-x-max) "right")
+     (t "mid"))))
+
+(defun win-resize-enlarge-horiz (columnNum)
+  (interactive)
+  (cond
+   ((equal "top" (win-resize-top-or-bot)) (enlarge-window (* 1 columnNum)))
+   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window columnNum))
+   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window (* -1 columnNum)))
+   (t (message "nil"))))
+
+(defun win-resize-minimize-horiz (columnNum)
+  (interactive)
+  (cond
+   ((equal "top" (win-resize-top-or-bot)) (enlarge-window columnNum))
+   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window (* -1 columnNum)))
+   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window columnNum))
+   (t (message "nil"))))
+
+(defun win-resize-enlarge-vert (columnNum)
+  (interactive)
+  (cond
+   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally (* -1 columnNum)))
+   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally columnNum))
+   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally (* -1 columnNum)))))
+
+(defun win-resize-minimize-vert (columnNum)
+  (interactive)
+  (cond
+   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally columnNum))
+   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally (* -1 columnNum)))
+   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally columnNum))))
+
+;;(message ".emacs loaded. Let's get coding..!!! (%ds)"
+;;		 (destructuring-bind (hi lo ms) (current-time)
+;;		   (- (+ hi lo) (+ (first *emacs-load-start*) (second *emacs-load-start*)))))

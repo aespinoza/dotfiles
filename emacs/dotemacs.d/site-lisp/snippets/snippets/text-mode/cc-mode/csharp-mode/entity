@@ -1,0 +1,91 @@
+#contributor : Alejandro Espinoza Esparza <aespinoza@structum.com.mx>
+#name : Entity
+# --
+using System;
+using Hms.Core.Domain;
+using Hms.Core.Domain.Validation;
+using System.Runtime.Serialization;
+
+namespace $1
+{
+    /// <summary>
+    /// Defines the $2 class.
+    /// </summary>
+    [DataContract]
+    [Serializable]
+    public class ${2:Name} : EntityBase
+    {
+        /// <summary>
+        /// Gets or Sets the Identifier.
+        /// </summary>
+        /// <value>$2 Identifier.</value>
+        [DataMember]
+        public string Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="$2"/> class.
+        /// </summary>
+        public $2()
+        {
+        }
+
+        /// <summary>
+        /// Returns true if the provided object has the same values as the current object.
+        /// </summary>
+        /// <param name="obj">Object to compare.</param>
+        /// <returns>True if the provided object has the same values as the current object, false otherwise.</returns>
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as $2);
+        }
+
+        /// <summary>
+        /// Returns true if the provided $2 has the same value as the current object.
+        /// </summary>
+        /// <param name="obj">Object to compare.</param>
+        /// <returns>True if the provided object has the same values as the current object, false otherwise.</returns>
+        public bool Equals($2 obj)
+        {
+            if (obj == null) {
+                return false;
+            }
+
+            return this.Id.Equals(obj.Id);
+        }
+
+        /// <summary>
+        /// Returns a Hash code of the current instance.
+        /// </summary>
+        /// <returns>int type representing Hash code.</returns>
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns a string representation of the object.
+        /// </summary>
+        /// <returns>String representation of the object.</returns>
+        public override string ToString()
+        {
+            return this.Id.ToString();
+        }
+
+        /// <summary>
+        /// Returns the Rule Violations for the Entity.
+        /// </summary>
+        /// <returns>Rule Violations.</returns>
+        public override IEnumerable<RuleViolation> GetRuleViolations()
+        {
+            if(String.IsNullOrEmpty(this.Id)) {
+                yield return new RuleViolation("$2 Id is empty.", "Id");
+            }
+
+            yield break;
+        }
+    }
+}

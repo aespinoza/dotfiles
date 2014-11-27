@@ -1,0 +1,18 @@
+#contributor : Alejandro Espinoza Esparza <aespinoza@structum.com.mx>
+#name : namespace { ... class ... { ... } }
+# --
+namespace $1
+{
+    /// <summary>
+    /// ${5:Defines the $2 class.}
+    /// </summary>
+    ${6:public} class ${2:Name}
+    {
+        /// <summary>
+        /// ${4:Initializes a new instance of the <see cref="$2"/> class.}
+        /// </summary>
+        public $2($3)
+        {
+        }
+    }
+}
